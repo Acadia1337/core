@@ -58,28 +58,29 @@ pipeline:
       local: false
       event: [push]
 
-  coverage:
+  phpunit:
     image: owncloudci/php:${PHP_VERSION}
     pull: true
     group: test
     environment:
       - PHP_VERSION=${PHP_VERSION}
       - DB_TYPE=${DB_TYPE}
+      - FILES_EXTERNAL_TYPE=${FILES_EXTERNAL_TYPE}
+      - COVERAGE=${COVERAGE}
     commands:
       - ./tests/drone/install-server.sh
-      - ./tests/drone/test-coverage.sh
+      - ./tests/drone/test-phpunit.sh
     when:
       event: [push, pull_request]
       matrix:
-        TEST_SUITE: coverage
+        TEST_SUITE: phpunit
 
   codecov:
     image: plugins/codecov:2
     secrets: [codecov_token]
     pull: true
     files:
-     - tests/autotest-clover-${DB_TYPE}.xml
-     - tests/autotest-external-clover-${DB_TYPE}.xml
+     - tests/autotest-*.xml
     when:
       event: [push, pull_request]
       matrix:
@@ -93,34 +94,6 @@ pipeline:
     when:
       matrix:
         TEST_SUITE: javascript
-
-  phpunit:
-    image: owncloudci/php:${PHP_VERSION}
-    pull: true
-    group: test
-    environment:
-      - PHP_VERSION=${PHP_VERSION}
-      - DB_TYPE=${DB_TYPE}
-    commands:
-      - ./tests/drone/install-server.sh
-      - ./tests/drone/test-phpunit.sh
-    when:
-      matrix:
-        TEST_SUITE: phpunit
-
-  files_external:
-    image: owncloudci/php:${PHP_VERSION}
-    pull: true
-    group: test
-    environment:
-      - PHP_VERSION=${PHP_VERSION}
-      - DB_TYPE=${DB_TYPE}
-    commands:
-      - ./tests/drone/install-server.sh
-      - ./tests/drone/test-files-external.sh
-    when:
-      matrix:
-        TEST_SUITE: files_external
 
   install-server:
     image: owncloudci/php:${PHP_VERSION}
@@ -223,12 +196,6 @@ services:
       matrix:
         DB_TYPE: postgres
 
-  owncloud_external:
-    image: owncloud/server:latest
-    when:
-      matrix:
-        FILES_EXTERNAL_TYPE: webdav
-
   oracle:
     image: deepdiver/docker-oracle-xe-11g
     environment:
@@ -265,6 +232,13 @@ services:
     when:
       matrix:
         USE_FEDERATED_SERVER: true
+
+  owncloud_external:
+    image: owncloud/server:latest
+    when:
+      matrix:
+        FILES_EXTERNAL_TYPE: webdav_owncloud
+
 matrix:
   include:
     - TEST_SUITE: javascript
@@ -285,28 +259,59 @@ matrix:
 
     - PHP_VERSION: 7.1
       DB_TYPE: sqlite
-      TEST_SUITE: files_external
       FILES_EXTERNAL_TYPE: webdav
+      TEST_SUITE: phpunit
+      COVERAGE: true
+
+    #- PHP_VERSION: 7.1
+    #  DB_TYPE: mariadb
+    #  TEST_SUITE: phpunit
+
+    - PHP_VERSION: 7.1
+      DB_TYPE: mysql
+      TEST_SUITE: phpunit
+      COVERAGE: true
+
+    - PHP_VERSION: 7.1
+      DB_TYPE: postgres
+      TEST_SUITE: phpunit
+      COVERAGE: true
+
+#    - PHP_VERSION: 7.1
+#      DB_TYPE: oracle
+#      TEST_SUITE: phpunit
+
 
     # PHP 7.2
     - PHP_VERSION: 7.2
       DB_TYPE: sqlite
       TEST_SUITE: phpunit
+    #- PHP_VERSION: 7.2
+    #  DB_TYPE: mariadb
+    #  TEST_SUITE: phpunit
+    #- PHP_VERSION: 7.2
+    #  DB_TYPE: mysql
+    #  TEST_SUITE: phpunit
+    #- PHP_VERSION: 7.2
+    #  DB_TYPE: postgres
+    #  TEST_SUITE: phpunit
+    # - PHP_VERSION: 7.2
+    #   DB_TYPE: oracle
+    #   TEST_SUITE: phpunit
 
-    # Code Coverage Computation
+  # Files External
     - PHP_VERSION: 7.1
-      DB_TYPE: sqlite
-      TEST_SUITE: coverage
+      TEST_SUITE: phpunit
+      COVERAGE: true
+      FILES_EXTERNAL_TYPE: webdav_owncloud
 
     - PHP_VERSION: 7.1
       DB_TYPE: mysql
       TEST_SUITE: coverage
 
-    - PHP_VERSION: 7.1
-      DB_TYPE: sqlite
-      TEST_SUITE: coverage
-      FILES_EXTERNAL_TYPE: webdav
-      
+
+
+  # Ui Acceptance tests
     - PHP_VERSION: 7.1
       TEST_SUITE: selenium
       BEHAT_SUITE: webUIFavorites
@@ -354,13 +359,13 @@ matrix:
       BEHAT_SUITE: webUIRenameFolders
       DB_TYPE: mariadb
       USE_SERVER: true
-    
+
     - PHP_VERSION: 7.1
       TEST_SUITE: selenium
       BEHAT_SUITE: webUITrashbin
       DB_TYPE: mariadb
       USE_SERVER: true
-    
+
     - PHP_VERSION: 7.1
       TEST_SUITE: selenium
       BEHAT_SUITE: webUISharingInternalGroups
