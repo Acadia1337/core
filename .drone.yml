@@ -80,7 +80,7 @@ pipeline:
     secrets: [codecov_token]
     pull: true
     files:
-     - tests/autotest-*
+     - tests/output/coverage/*.xml
     when:
       event: [push, pull_request]
       matrix:
@@ -297,7 +297,6 @@ matrix:
   # Files External
     - PHP_VERSION: 7.1
       TEST_SUITE: phpunit
-      DB_TYPE: mariadb
       COVERAGE: true
       FILES_EXTERNAL_TYPE: webdav_owncloud
 
