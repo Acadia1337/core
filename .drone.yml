@@ -80,11 +80,11 @@ pipeline:
     secrets: [codecov_token]
     pull: true
     files:
-     - tests/autotest-*.xml
+     - tests/autotest-*
     when:
       event: [push, pull_request]
       matrix:
-        TEST_SUITE: coverage
+        COVERAGE: true
 
   test-javascript:
     image: owncloudci/php:${PHP_VERSION}
