@@ -241,60 +241,55 @@ services:
 
 matrix:
   include:
+
+  # frontend
     - TEST_SUITE: javascript
       PHP_VERSION: 7.1
 
+  # Unit Tests
     - PHP_VERSION: 7.1
       DB_TYPE: mysql
       TEST_SUITE: phpunit
+
     - PHP_VERSION: 7.1
       DB_TYPE: mysqlmb4
       TEST_SUITE: phpunit
+
+#    - PHP_VERSION: 7.1
+#      DB_TYPE: mariadb
+#      TEST_SUITE: phpunit
+
     - PHP_VERSION: 7.1
       DB_TYPE: postgres
       TEST_SUITE: phpunit
+
     - PHP_VERSION: 7.1
       DB_TYPE: oracle
       TEST_SUITE: phpunit
 
     - PHP_VERSION: 7.1
       DB_TYPE: sqlite
-      FILES_EXTERNAL_TYPE: webdav
       TEST_SUITE: phpunit
       COVERAGE: true
-
-    #- PHP_VERSION: 7.1
-    #  DB_TYPE: mariadb
-    #  TEST_SUITE: phpunit
-
-    - PHP_VERSION: 7.1
-      DB_TYPE: mysql
-      TEST_SUITE: phpunit
-      COVERAGE: true
-
-    - PHP_VERSION: 7.1
-      DB_TYPE: postgres
-      TEST_SUITE: phpunit
-      COVERAGE: true
-
-#    - PHP_VERSION: 7.1
-#      DB_TYPE: oracle
-#      TEST_SUITE: phpunit
 
 
     # PHP 7.2
     - PHP_VERSION: 7.2
       DB_TYPE: sqlite
       TEST_SUITE: phpunit
-    #- PHP_VERSION: 7.2
-    #  DB_TYPE: mariadb
-    #  TEST_SUITE: phpunit
+
+    - PHP_VERSION: 7.2
+      DB_TYPE: mariadb
+      TEST_SUITE: phpunit
+
     #- PHP_VERSION: 7.2
     #  DB_TYPE: mysql
     #  TEST_SUITE: phpunit
+    #
     #- PHP_VERSION: 7.2
     #  DB_TYPE: postgres
     #  TEST_SUITE: phpunit
+    #
     # - PHP_VERSION: 7.2
     #   DB_TYPE: oracle
     #   TEST_SUITE: phpunit
@@ -302,13 +297,9 @@ matrix:
   # Files External
     - PHP_VERSION: 7.1
       TEST_SUITE: phpunit
+      DB_TYPE: mariadb
       COVERAGE: true
       FILES_EXTERNAL_TYPE: webdav_owncloud
-
-    - PHP_VERSION: 7.1
-      DB_TYPE: mysql
-      TEST_SUITE: coverage
-
 
 
   # Ui Acceptance tests
