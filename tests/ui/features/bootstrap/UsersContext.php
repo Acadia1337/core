@@ -26,6 +26,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Page\UsersPage;
+use TestHelpers\OcsApiHelper;
 
 require_once 'bootstrap.php';
 
@@ -83,6 +84,44 @@ class UsersContext extends RawMinkContext implements Context {
 	 */
 	public function quotaOfUserIsSetTo($username, $quota) {
 		$this->usersPage->setQuotaOfUserTo($username, $quota, $this->getSession());
+	}
+
+	/**
+	 * Taken from acceptance Provisioning.php and modified to suit current
+	 * UI test environment. This function should be removed when merging UI
+	 * and API acceptance tests, and the one from Provisioning.php used everywhere.
+	 *
+	 * @When the administrator sets the quota of user :user to :quota using the API
+	 * @Given the quota of user :user has been set to :quota z
+	 *
+	 * @param string $user
+	 * @param string $quota
+	 *
+	 * @return void
+	 */
+	public function adminSetsUserQuotaToUsingTheAPIz($user, $quota) {
+		$body = new \Behat\Gherkin\Node\TableNode(
+			[
+				0 => ['key', 'quota'],
+				1 => ['value', $quota],
+			]
+		);
+
+		sleep(5);
+		$this->response = OcsApiHelper::sendRequest(
+			$this->getMinkParameter('base_url'),
+			"admin",
+			"admin",
+			//$this->featureContext->getUserPassword("admin"),
+			"PUT",
+			"/cloud/users/" . $user,
+			$body,
+			1
+		);
+
+		PHPUnit_Framework_Assert::assertEquals(
+			200, $this->response->getStatusCode()
+		);
 	}
 
 	/**
